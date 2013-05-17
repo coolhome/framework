@@ -237,14 +237,20 @@ class Router {
 	/**
 	 * Route a controller to a URI with wildcard routing.
 	 *
-	 * @param  string  $uri
-	 * @param  string  $controller
-	 * @param  array   $names
+	 * @param  string      $uri
+	 * @param  string      $controller
+	 * @param  array|int   $names
+	 * @param  int         $segments
 	 * @return \Illuminate\Routing\Route
 	 */
-	public function controller($uri, $controller, $names = array())
+	public function controller($uri, $controller, $names = array(), $segments = 5)
 	{
-		$routable = $this->getInspector()->getRoutable($controller, $uri);
+		if (is_integer($names))
+		{
+			$segments = $names;
+			$names = array();
+		}
+		$routable = $this->getInspector()->getRoutable($controller, $uri, $segments);
 
 		// When a controller is routed using this method, we use Reflection to parse
 		// out all of the routable methods for the controller, then register each

@@ -22,7 +22,7 @@ class Inspector {
 	 * @param  string  $prefix
 	 * @return array
 	 */
-	public function getRoutable($controller, $prefix)
+	public function getRoutable($controller, $prefix, $segments = 5)
 	{
 		$routable = array();
 
@@ -35,7 +35,7 @@ class Inspector {
 		{
 			if ($this->isRoutable($method, $reflection->name))
 			{
-				$data = $this->getMethodData($method, $prefix);
+				$data = $this->getMethodData($method, $prefix, $segments);
 
 				// If the routable method is an index method, we will create a special index
 				// route which is simply the prefix and the verb and does not contain any
@@ -78,13 +78,15 @@ class Inspector {
 	 * Get the method data for a given method.
 	 *
 	 * @param  ReflectionMethod  $method
+	 * @param  string $prefix
+	 * @param  integer $segments
 	 * @return array
 	 */
-	public function getMethodData(ReflectionMethod $method, $prefix)
+	public function getMethodData(ReflectionMethod $method, $prefix, $segments)
 	{
 		$verb = $this->getVerb($name = $method->name);
 
-		$uri = $this->addUriWildcards($plain = $this->getPlainUri($name, $prefix));
+		$uri = $this->addUriWildcards($plain = $this->getPlainUri($name, $prefix), $segments);
 
 		return compact('verb', 'plain', 'uri');
 	}
@@ -130,9 +132,13 @@ class Inspector {
 	 * @param  string  $uri
 	 * @return string
 	 */
-	public function addUriWildcards($uri)
+	public function addUriWildcards($uri, $segments)
 	{
-		return $uri.'/{v1?}/{v2?}/{v3?}/{v4?}/{v5?}';
+		for ($i = 1; $i != $segments + 1; $i++)
+		{
+			$uri .= '/{v' . $i . '?}';
+		}
+		return $uri;
 	}
 
 }
